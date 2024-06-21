@@ -4,6 +4,7 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -31,16 +32,23 @@ class activity_meditacao : AppCompatActivity() {
         botaoStartMeditacao = findViewById(R.id.buttonMeditacao)
         imageMeditacao = findViewById(R.id.imageViewMeditacao)
         mediaPlayer = MediaPlayer.create(this, R.raw.meditacao_audio)
+        mediaPlayer.isLooping = false // Define se deve repetir o áudio automaticamente
 
         botaoStartMeditacao.setOnClickListener {
             startMeditacao()
             registrarMeditacao()
         }
+
     }
 
     private fun startMeditacao() {
-        if (!mediaPlayer.isPlaying) {
-            mediaPlayer.start()
+        try {
+            if (!mediaPlayer.isPlaying) {
+                mediaPlayer.start()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "Erro ao reproduzir áudio: ${e.message}", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
         }
     }
 
@@ -60,9 +68,11 @@ class activity_meditacao : AppCompatActivity() {
         meditacaoRef.push().setValue(meditacao)
             .addOnSuccessListener {
                 // Sucesso ao salvar no banco de dados
+                Toast.makeText(this, "Meditação registrada com sucesso", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener { exception ->
                 // Falha ao salvar no banco de dados
+                Toast.makeText(this, "Erro${exception.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
