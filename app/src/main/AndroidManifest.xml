@@ -13,11 +13,22 @@
         android:theme="@style/Theme.MindEase"
         tools:targetApi="31">
         <activity
+            android:name=".activity_meditacao"
+            android:exported="false" />
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity_dashboard"
+            android:exported="false" />
+        <activity
+            android:name=".MeditacaoActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

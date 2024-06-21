@@ -1,6 +1,7 @@
 package com.example.mindease
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -10,10 +11,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var database: FirebaseDatabase
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,6 +29,7 @@ class MainActivity : AppCompatActivity() {
             insets
         }
         auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance()
 
         val logBotao = findViewById<Button>(R.id.loginBotao)
         logBotao.setOnClickListener {
@@ -45,7 +49,15 @@ class MainActivity : AppCompatActivity() {
     private fun loginuser(email: String, senha: String) {
         auth.signInWithEmailAndPassword(email, senha).addOnCompleteListener(this) { task ->
             if (task.isSuccessful) {
-                Toast.makeText(this, "Login realizado com sucesso", Toast.LENGTH_SHORT).show()
+                // Login realizado com sucesso, direcionar para DashboardActivity
+                Toast.makeText(this, "Login efetuado com sucesso", Toast.LENGTH_SHORT).show()
+                val user = auth.currentUser
+                user?.let {
+                    updateInfomacoesUsuario(it.uid)
+                }
+                val intent = Intent(this, DashboardActivity::class.java)
+                startActivity(intent)
+                finish()
             } else {
                 Toast.makeText(this, "Erro ao fazer login", Toast.LENGTH_SHORT).show()
             }
@@ -61,5 +73,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun updateInfomacoesUsuario(userId: String) {
+        val userRef = database.getReference("users").child(userId)
+        val userUpdates = HashMap<String, Any>()
+        auth.currentUser?.let { user ->
+            userUpdates["email"] = user.email ?: ""
+            userUpdates["name"] = user.displayName ?: ""
+        }
+        userRef.updateChildren(userUpdates)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Informações do usuário atualizadas", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(this, "Erro ao atualizar informações do usuário: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
 }
 //continua o codigo dfgdfg ghfghfg
